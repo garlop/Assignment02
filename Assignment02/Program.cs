@@ -23,7 +23,7 @@ namespace Assignment02
         new AutoResetEvent(false),
         new AutoResetEvent(false)
         };
-        static readonly string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "index_dmc_new_attributes_8.txt");
+        static readonly string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "index_dmc_new_attributes_8_1.txt");
         //static readonly string _modelPath = Path.Combine(Environment.CurrentDirectory, "Data", "Model.zip");
         static int Main(string[] args)
         {
@@ -78,7 +78,7 @@ namespace Assignment02
 
         public static IReadOnlyList<TrainTestData> LoadData(MLContext mlContext)
         {
-            IDataView dataView = mlContext.Data.LoadFromTextFile<MinutiaData>(_dataPath, hasHeader: false);
+            IDataView dataView = mlContext.Data.LoadFromTextFile<MinutiaData>(_dataPath, hasHeader: true);
 
             // Cross validation splits your data randomly into set of "folds", and
             // creates groups of Train and Test sets, where for each group, one fold

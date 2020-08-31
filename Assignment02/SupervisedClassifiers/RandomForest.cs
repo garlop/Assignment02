@@ -57,7 +57,7 @@ namespace Assignment02.SupervisedClassifiers
                 var testData = splitDataView[i].TestSet;
                 Console.WriteLine("RandomForest Training Fold: " + i);
                 
-                var replacementEstimator = mlContext.Transforms.ReplaceMissingValues("Features", replacementMode: MissingValueReplacingEstimator.ReplacementMode.Mean);
+                var replacementEstimator = mlContext.Transforms.ReplaceMissingValues("Features", replacementMode: MissingValueReplacingEstimator.ReplacementMode.DefaultValue);
                 // Fit data to estimator
                 // This is not suitable, as it takes to much.
                 ITransformer replacementTransformer = replacementEstimator.Fit(trainingData);

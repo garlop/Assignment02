@@ -2,6 +2,7 @@
 using Assignment02.Utils;
 using Microsoft.ML;
 using Microsoft.ML.Trainers;
+using Microsoft.ML.Transforms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,9 +56,19 @@ namespace Assignment02.SupervisedClassifiers
                 
                 Console.WriteLine("MaximumEntropy Training Fold: " + i);
 
-                var model = this.pipeline.Fit(trainingData);
+                var replacementEstimator = mlContext.Transforms.ReplaceMissingValues("Features", replacementMode: MissingValueReplacingEstimator.ReplacementMode.DefaultValue);
+                // Fit data to estimator
+                // This is not suitable, as it takes to much.
+                ITransformer replacementTransformer = replacementEstimator.Fit(trainingData);
+                // Transform data
+                IDataView transformedtrainingData = replacementTransformer.Transform(trainingData);
 
-                var transformedTestData = model.Transform(testData);
+                ITransformer replacementtestingTransformer = replacementEstimator.Fit(testData);
+                IDataView transformedtestingData = replacementtestingTransformer.Transform(testData);
+
+                var model = this.pipeline.Fit(transformedtrainingData);
+
+                var transformedTestData = model.Transform(transformedtestingData);
 
                 var predictions = mlContext.Data.CreateEnumerable<Prediction>(transformedTestData, reuseRowObject: false).ToList();
 

@@ -2,6 +2,7 @@
 using Assignment02.Utils;
 using Microsoft.ML;
 using Microsoft.ML.Trainers;
+using Microsoft.ML.Transforms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,11 +48,22 @@ namespace Assignment02.SupervisedClassifiers
                 var trainingData = splitDataView[i].TrainSet;
                 var testData = splitDataView[i].TestSet;
                 Console.WriteLine("LogisticRegression Training Fold: " + i);
+
+                var replacementEstimator = mlContext.Transforms.ReplaceMissingValues("Features", replacementMode: MissingValueReplacingEstimator.ReplacementMode.DefaultValue);
+                // Fit data to estimator
+                // This is not suitable, as it takes to much.
+                ITransformer replacementTransformer = replacementEstimator.Fit(trainingData);
+                // Transform data
+                IDataView transformedtrainingData = replacementTransformer.Transform(trainingData);
+
+                ITransformer replacementtestingTransformer = replacementEstimator.Fit(testData);
+                IDataView transformedtestingData = replacementtestingTransformer.Transform(testData);
+
                 // Train the model.
-                var model = this.pipeline.Fit(trainingData);
+                var model = this.pipeline.Fit(transformedtrainingData);
 
                 // Run the model on test data set.
-                var transformedTestData = model.Transform(testData);
+                var transformedTestData = model.Transform(transformedtestingData);
 
                 // Convert IDataView object to a list.
                 var predictions = mlContext.Data.CreateEnumerable<Prediction>(transformedTestData, reuseRowObject: false).ToList();

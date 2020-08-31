@@ -31,6 +31,9 @@
     <None Update="Data\index_dmc_new_attributes_8.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\index_dmc_new_attributes_8_1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

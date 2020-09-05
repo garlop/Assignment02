@@ -23,16 +23,38 @@ namespace Assignment02
         new AutoResetEvent(false),
         new AutoResetEvent(false)
         };
+
+        //Set the variable datapath as the path where the .csv is saved to use in futur in the program
         static readonly string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "index_dmc_new_attributes_8_1.txt");
         //static readonly string _modelPath = Path.Combine(Environment.CurrentDirectory, "Data", "Model.zip");
+
+        //Main program structure, this needs a array of strings in order to work properly
         static int Main(string[] args)
         {
+            //Set initial variables which are going to be used later
             string classifiers = "";
             string threading = "";
+
+            //Evaluate the string array in order to determine if the array has 2 elements or not, if not, ask for a proper
+            //array
             if (args.Length != 2){
                 Console.WriteLine("Please provide the proper number of execution parameters");
                 return 1;
             }
+            /* If the array args has 2 elements, define the first element as the classifiers types
+             * and evaluate if the said classifier includes the letters "rpbmtsl" in their name, if not, consider it 
+             * as an invalid classifier selection, also, check the second element of the args array to define 
+             * if its a valid threading selection or not
+             * The letter meaning are as follow:
+             * For the classifiers                                  For the threading
+             * r -> Random Forest                                   s -> Single Threading
+             * b -> Naive Bayes                                     m -> Multiple Threading
+             * p -> Averaged Perception
+             * m -> Maximum Entropy
+             * t -> Gradient Boosting Decision Tree 
+             * s -> Support Vector Machine
+             * l -> Logistic Regression
+             */
             else
             {
                 classifiers = args[0];
@@ -59,6 +81,10 @@ namespace Assignment02
             // Create a new context for ML.NET operations as the source of randomness. Setting the seed to a fixed number to make outputs deterministic.
             var mlContext = new MLContext(seed: 0);
 
+            /*Prepare the program to evaluate the dataset using the mlContext to train the classifiers and then evaluate
+            *the results, first chech if the threading is gonna be single thread or multiple thread
+            *execution, to call the corresponding function, and store the result metric valuation in variable "v" 
+            */
             IReadOnlyList<TrainTestData> splitDataView = LoadData(mlContext);
 
             double v = 0;
@@ -90,8 +116,18 @@ namespace Assignment02
             return folds;
         }
 
+
+        //This is the function called before for single thread execution 
         public static double SingleThreadExecution(string classifiers, double v, IReadOnlyList<TrainTestData> splitDataView, MLContext mlContext)
         {
+            /*First select the classifier type by comparing the char values as described before, 
+             * generate a new instance of the classifier type named classifier, which will have different parameters
+             * depending on the classifier, and pass the data "mlContext" to the classifier. After that prepare the model
+             * using the function defined inside the classifier class and evaluate the classifier using the corresponding
+             * function.
+             * Finally, output to console the value of each classifier evaluated and return the maximum value for the 
+             * metric valuation of the previous evaluated classifiers as the "v" value 
+             */
             if (classifiers.ToLower().Contains('r'))
             {
                 RandomForest classifier = new RandomForest(0.8, 0.1, 50, mlContext);
@@ -158,6 +194,9 @@ namespace Assignment02
             return v;
         }
 
+        /*The next function definitions are used for the multithread processing, where each definition is a different
+        *classifier, which are going to be called later by the multithread algorithm
+        */
         public static double TrainRandomForest(IReadOnlyList<TrainTestData> splitDataView, MLContext mlContext)
         {
             RandomForest classifier = new RandomForest(0.8, 0.1, 50, mlContext);
@@ -221,6 +260,13 @@ namespace Assignment02
             return vi;
         }
 
+
+        /* This routine is in charge of making the processing for the different classifiers in different threads
+         * using as classifier selection the "classifiers" string and evaluating each of them according to the 
+         * before declared functions.
+         * At the end it will wait all the threads to end the processing in order to calculate the highest AUC value
+         * reached in the different tests
+         */
         public static double MultipleThreadExecution(string classifiers, IReadOnlyList<TrainTestData> splitDataView, MLContext mlContext)
         {
             ManualResetEvent[] syncEvent = new ManualResetEvent[classifiers.Length];

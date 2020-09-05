@@ -5,6 +5,8 @@ using System.Text;
 
 namespace Assignment02.DataClasses
 {
+
+    //This is the definition for the minutiadata class, which is used to set and get the features of each minutia
     public class MinutiaData
     {
         [LoadColumn(0, 243), VectorType(244), ColumnName("Features")]

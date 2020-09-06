@@ -26,7 +26,6 @@ namespace Assignment02
 
         //Set the variable datapath as the path where the .csv is saved to use in futur in the program
         static readonly string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "index_dmc_new_attributes_8_1.txt");
-        //static readonly string _modelPath = Path.Combine(Environment.CurrentDirectory, "Data", "Model.zip");
 
         //Main program structure, this needs a array of strings in order to work properly
         static int Main(string[] args)
@@ -364,37 +363,5 @@ namespace Assignment02
 
             return result.Max();
         }
-
-        // Pretty-print BinaryClassificationMetrics objects.
-        //private static void PrintMetrics(BinaryClassificationMetrics metrics)
-        //{
-        // Expected output:
-        //   Accuracy: 0.73
-        //   AUC: 0.81
-        //   F1 Score: 0.73
-        //   Negative Precision: 0.77
-        //   Negative Recall: 0.68
-        //   Positive Precision: 0.69
-        //   Positive Recall: 0.78
-        //
-        //   TEST POSITIVE RATIO:    0.4760 (238.0/(238.0+262.0))
-        //   Confusion table
-        //             ||======================
-        //   PREDICTED || positive | negative | Recall
-        //   TRUTH     ||======================
-        //    positive ||      186 |       52 | 0.7815
-        //    negative ||       77 |      185 | 0.7061
-        //             ||======================
-        //   Precision ||   0.7072 |   0.7806 |
-
-        //Console.WriteLine($"Accuracy: {metrics.Accuracy:F2}");
-        //Console.WriteLine($"AUC: {metrics.AreaUnderRocCurve:F2}");
-        //Console.WriteLine($"F1 Score: {metrics.F1Score:F2}");
-        //Console.WriteLine($"Negative Precision: " + $"{metrics.NegativePrecision:F2}");
-        //Console.WriteLine($"Negative Recall: {metrics.NegativeRecall:F2}");
-        //Console.WriteLine($"Positive Precision: " + $"{metrics.PositivePrecision:F2}");
-        //Console.WriteLine($"Positive Recall: {metrics.PositiveRecall:F2}\n");
-        //Console.WriteLine(metrics.ConfusionMatrix.GetFormattedConfusionTable());
-        //}
     }
 }

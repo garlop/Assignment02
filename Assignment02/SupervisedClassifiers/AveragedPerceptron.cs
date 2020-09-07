@@ -11,6 +11,15 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace Assignment02.SupervisedClassifiers
 {
+    /*The averaged perceptron method is an early and very simple version of a neural network. In this approach, 
+     * inputs are classified into several possible outputs based on a linear function, and then combined with a 
+     * set of weights that are derived from the feature vector—hence the name "perceptron."
+     * 
+     * The simpler perceptron models are suited to learning linearly separable patterns, whereas neural 
+     * networks (especially deep neural networks) can model more complex class boundaries. However, perceptrons 
+     * are faster, and because they process cases serially, perceptrons can be used with continuous training.
+     */
+
     class AveragedPerceptron
     {
         AveragedPerceptronTrainer.Options options;

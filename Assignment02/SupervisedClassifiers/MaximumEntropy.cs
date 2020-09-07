@@ -11,6 +11,12 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace Assignment02.SupervisedClassifiers
 {
+    /*The Max Entropy classifier is a probabilistic classifier which belongs to the class of exponential models. 
+     *The MaxEnt is based on the Principle of Maximum Entropy and from all the models that fit our training data, 
+     *selects the one which has the largest entropy. The Max Entropy classifier can be used to solve a large variety 
+     *of text classification problems such as language detection, topic classification, sentiment analysis and more.
+     */
+
     class MaximumEntropy
     {
         MLContext mlContext;

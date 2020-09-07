@@ -11,6 +11,11 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace Assignment02.SupervisedClassifiers
 {
+    /*Logistic regression is a well-known method in statistics that is used to predict the probability of an outcome, 
+     * and is especially popular for classification tasks. The algorithm predicts the probability of occurrence of 
+     * an event by fitting data to a logistic function. 
+     */
+
     class LogisticRegression
     {
         LbfgsLogisticRegressionBinaryTrainer.Options options;

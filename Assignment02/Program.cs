@@ -9,6 +9,9 @@ using Assignment02.DataClasses;
 using System.Threading;
 using System.Linq;
 using System.Globalization;
+using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Assignment02
 {
@@ -23,9 +26,6 @@ namespace Assignment02
         new AutoResetEvent(false),
         new AutoResetEvent(false)
         };
-
-        //Set the variable datapath as the path where the .csv is saved to use in futur in the program
-        static readonly string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "index_dmc_new_attributes_8_1.txt");
 
         //Main program structure, this needs a array of strings in order to work properly
         static int Main(string[] args)
@@ -80,28 +80,119 @@ namespace Assignment02
             // Create a new context for ML.NET operations as the source of randomness. Setting the seed to a fixed number to make outputs deterministic.
             var mlContext = new MLContext(seed: 0);
 
+            string filePath = Path.Combine(Environment.CurrentDirectory, "Data", "results.xml");
+
+            using (XmlWriter writer = XmlWriter.Create(filePath))
+            {
+                writer.WriteStartElement("Experiments");
+                writer.WriteEndElement();
+                writer.Flush();
+            }
+
             /*Prepare the program to evaluate the dataset using the mlContext to train the classifiers and then evaluate
             *the results, first chech if the threading is gonna be single thread or multiple thread
             *execution, to call the corresponding function, and store the result metric valuation in variable "v" 
             */
-            IReadOnlyList<TrainTestData> splitDataView = LoadData(mlContext);
 
-            double v = 0;
+            int numberOfFiles = 50;
 
-            if (threading == "s")
+            double[][] aucsForClassifier = new double[7][];
+
+            for (int i = 0; i < 7; i++)
+                aucsForClassifier[i] = new double[numberOfFiles];
+
+            //Thresholds for binary classes
+            string[] thresholds = { "-0.24", "-0.23", "-0.22", "-0.21", "-0.2", "-0.19", "-0.18", "-0.17", "-0.16", "-0.15",
+                "-0.14", "-0.13", "-0.12", "-0.11", "-0.1", "-0.09", "-0.08", "-0.07","-0.06", "-0.05", "-0.04", "-0.03", "-0.02",
+                "-0.01", "0.0", "0.01", "0.02", "0.03", "0.04", "0.05", "0.06", "0.07", "0.08", "0.09", "0.1", "0.11", "0.12", "0.13", "0.14",
+                "0.15", "0.16", "0.17", "0.18", "0.19", "0.2", "0.21", "0.22", "0.23", "0.24", "0.25"};
+
+            for (int i = 0; i< numberOfFiles; i++)
             {
-                v = SingleThreadExecution(classifiers, v, splitDataView, mlContext);
-            }
-            else
-            {
-                v = MultipleThreadExecution(classifiers, splitDataView, mlContext);
+                //Set the variable datapath as the path where the .csv is saved to use in futur in the program
+                //This line for binary classes
+                string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data\\BinaryData", "ex_database_threshold" + thresholds[i]+ ".txt");
+
+                IReadOnlyList<TrainTestData> splitDataView = LoadData(mlContext, _dataPath);
+
+                Tuple<double, double[]> results;
+
+                if (threading == "s")
+                {
+                    results = SingleThreadExecution(classifiers, splitDataView, mlContext);
+                }
+                else
+                {
+                    results = MultipleThreadExecution(classifiers, splitDataView, mlContext);
+                }
+
+                Console.WriteLine($"Metric valuation:{ results.Item1 }");
+
+                saveResultToXMLFile(thresholds[i], results.Item1, results.Item2);
+
+                aucsForClassifier[0][i] = results.Item2[0];
+                aucsForClassifier[1][i] = results.Item2[1];
+                aucsForClassifier[2][i] = results.Item2[2];
+                aucsForClassifier[3][i] = results.Item2[3];
+                aucsForClassifier[4][i] = results.Item2[4];
+                aucsForClassifier[5][i] = results.Item2[5];
+                aucsForClassifier[6][i] = results.Item2[6];
             }
 
-            Console.WriteLine($"Metric valuation:{ v }");
+            calculateQuartilesForClassifiers(aucsForClassifier, numberOfFiles);
+
             return 0;
         }
 
-        public static IReadOnlyList<TrainTestData> LoadData(MLContext mlContext)
+        public static void calculateQuartilesForClassifiers(double[][] aucsForClassifiers, int numberOfFiles)
+        {
+            for(int i = 0; i<7; i++)
+            {
+                int Q1Index = numberOfFiles / 4;
+                int Q2Index = numberOfFiles / 2;
+                int Q3Index = Q1Index + Q2Index;
+
+                Array.Sort(aucsForClassifiers[i]);
+                double Q1 = aucsForClassifiers[i][Q1Index];
+                double Q2 = aucsForClassifiers[i][Q2Index];
+                double Q3 = aucsForClassifiers[i][Q3Index];
+                double min = aucsForClassifiers[i].Min();
+                double max = aucsForClassifiers[i].Max();
+
+                string filePath = Path.Combine(Environment.CurrentDirectory, "Data", "results.xml");
+
+                XDocument doc = XDocument.Load(filePath);
+                XElement root = new XElement("Classifier"+i);
+                root.Add(new XElement("Q1", "" + Q1));
+                root.Add(new XElement("Q2", "" + Q2));
+                root.Add(new XElement("Q3", "" + Q3));
+                root.Add(new XElement("Min", "" + min));
+                root.Add(new XElement("Max", "" + max));
+                doc.Element("Experiments").Add(root);
+                doc.Save(filePath);
+
+            }
+        }
+
+        public static void saveResultToXMLFile(string fileThreshold, double auc, double[] classifiersauc)
+        {
+            string filePath = Path.Combine(Environment.CurrentDirectory, "Data", "results.xml");
+
+            XDocument doc = XDocument.Load(filePath);
+            XElement root = new XElement("threshold" + fileThreshold);
+            root.Add(new XElement("AUC", "" + auc));
+            root.Add(new XElement("RFAUC", ""+classifiersauc[0]));
+            root.Add(new XElement("APAUC", ""+classifiersauc[1]));
+            root.Add(new XElement("NBAUC", ""+classifiersauc[2]));
+            root.Add(new XElement("MEAUC", ""+classifiersauc[3]));
+            root.Add(new XElement("GBDTAUC", ""+classifiersauc[4]));
+            root.Add(new XElement("SVMAUC", ""+classifiersauc[5]));
+            root.Add(new XElement("LRAUC", ""+classifiersauc[6]));
+            doc.Element("Experiments").Add(root);
+            doc.Save(filePath);
+        }
+
+        public static IReadOnlyList<TrainTestData> LoadData(MLContext mlContext, string _dataPath)
         {
             IDataView dataView = mlContext.Data.LoadFromTextFile<MinutiaData>(_dataPath, hasHeader: true);
 
@@ -117,7 +208,7 @@ namespace Assignment02
 
 
         //This is the function called before for single thread execution 
-        public static double SingleThreadExecution(string classifiers, double v, IReadOnlyList<TrainTestData> splitDataView, MLContext mlContext)
+        public static Tuple<double, double[]> SingleThreadExecution(string classifiers, IReadOnlyList<TrainTestData> splitDataView, MLContext mlContext)
         {
             /*First select the classifier type by comparing the char values as described before, 
              * generate a new instance of the classifier type named classifier, which will have different parameters
@@ -127,6 +218,8 @@ namespace Assignment02
              * Finally, output to console the value of each classifier evaluated and return the maximum value for the 
              * metric valuation of the previous evaluated classifiers as the "v" value 
              */
+            double[] result = new double[7];
+            double v = 0;
             if (classifiers.ToLower().Contains('r'))
             {
                 RandomForest classifier = new RandomForest(0.8, 0.1, 50, mlContext);
@@ -134,6 +227,7 @@ namespace Assignment02
                 double vi = classifier.trainAndEvaluateModel(10, splitDataView);
                 Console.WriteLine("AUC RandomForest Value: " + vi);
                 v = Math.Max(v, vi);
+                result[0] = vi;
             }
 
             if (classifiers.ToLower().Contains('p'))
@@ -143,6 +237,7 @@ namespace Assignment02
                 double vi = classifier.trainAndEvaluateModel(10, splitDataView);
                 Console.WriteLine("AUC AveragedPreceptron Value: " + vi);
                 v = Math.Max(v, vi);
+                result[1] = vi;
             }
 
             if (classifiers.ToLower().Contains('b'))
@@ -152,6 +247,7 @@ namespace Assignment02
                 double vi = classifier.trainAndEvaluateModel(10, splitDataView);
                 Console.WriteLine("AUC NaiveBayes Value: " + vi);
                 v = Math.Max(v, vi);
+                result[2] = vi;
             }
 
             if (classifiers.ToLower().Contains('m'))
@@ -161,6 +257,7 @@ namespace Assignment02
                 double vi = classifier.trainAndEvaluateModel(10, splitDataView);
                 Console.WriteLine("AUC MaximumEntropy Value: " + vi);
                 v = Math.Max(v, vi);
+                result[3] = vi;
             }
 
             if (classifiers.ToLower().Contains("t"))
@@ -170,6 +267,7 @@ namespace Assignment02
                 double vi = classifier.trainAndEvaluateModel(10, splitDataView);
                 Console.WriteLine("AUC GradientBoostingDecisionTree Value: " + vi);
                 v = Math.Max(v, vi);
+                result[4] = vi;
             }
 
             if (classifiers.ToLower().Contains("s"))
@@ -179,6 +277,7 @@ namespace Assignment02
                 double vi = classifier.trainAndEvaluateModel(10, splitDataView);
                 Console.WriteLine("AUC SupportVectorMachine Value: " + vi);
                 v = Math.Max(v, vi);
+                result[5] = vi;
             }
 
             if (classifiers.ToLower().Contains("l"))
@@ -188,9 +287,10 @@ namespace Assignment02
                 double vi = classifier.trainAndEvaluateModel(10, splitDataView);
                 Console.WriteLine("AUC LogisticRegression Value: " + vi);
                 v = Math.Max(v, vi);
+                result[6] = vi;
             }
 
-            return v;
+            return Tuple.Create(v, result);
         }
 
         /*The next function definitions are used for the multithread processing, where each definition is a different
@@ -266,7 +366,7 @@ namespace Assignment02
          * At the end it will wait all the threads to end the processing in order to calculate the highest AUC value
          * reached in the different tests
          */
-        public static double MultipleThreadExecution(string classifiers, IReadOnlyList<TrainTestData> splitDataView, MLContext mlContext)
+        public static Tuple<double, double[]> MultipleThreadExecution(string classifiers, IReadOnlyList<TrainTestData> splitDataView, MLContext mlContext)
         {
             ManualResetEvent[] syncEvent = new ManualResetEvent[classifiers.Length];
             for (int k = 0; k< classifiers.Length; k++)
@@ -361,7 +461,7 @@ namespace Assignment02
 
             ManualResetEvent.WaitAll(syncEvent);
 
-            return result.Max();
+            return Tuple.Create(result.Max(), result);
         }
     }
 }

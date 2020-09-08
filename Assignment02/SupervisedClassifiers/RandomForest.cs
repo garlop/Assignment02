@@ -11,6 +11,18 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace Assignment02.SupervisedClassifiers
 {
+    /*The decision forest algorithm is an ensemble learning method for classification. The algorithm works by 
+     * building multiple decision trees and then voting on the most popular output class. Voting is a form of 
+     * aggregation, in which each tree in a classification decision forest outputs a non-normalized frequency 
+     * histogram of labels. The aggregation process sums these histograms and normalizes the result to get the 
+     * “probabilities” for each label. The trees that have high prediction confidence have a greater weight in the 
+     * final decision of the ensemble.
+     * 
+     * Decision trees in general are non-parametric models, meaning they support data with varied distributions. 
+     * In each tree, a sequence of simple tests is run for each class, increasing the levels of a tree structure 
+     * until a leaf node (decision) is reached.
+     */
+
     class RandomForest
     {
         FastForestBinaryTrainer.Options options;

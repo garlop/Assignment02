@@ -11,6 +11,13 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace Assignment02.SupervisedClassifiers
 {
+    /*Naive Bayes methods are a set of supervised learning algorithms based on applying Bayes’ theorem with 
+     * the “naive” assumption of conditional independence between every pair of features given the value of the class 
+     * variable. In spite of their apparently over-simplified assumptions, naive Bayes classifiers have worked quite 
+     * well in many real-world situations, famously document classification and spam filtering. 
+     * They require a small amount of training data to estimate the necessary parameters.
+     */
+
     class NaiveBayes
     {
         MLContext mlContext;

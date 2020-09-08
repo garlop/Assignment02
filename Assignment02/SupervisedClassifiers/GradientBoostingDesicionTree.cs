@@ -10,6 +10,16 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace Assignment02.SupervisedClassifiers
 {
+    /*A boosted decision tree is an ensemble learning method in which the second tree corrects for the errors of 
+     *the first tree, the third tree corrects for the errors of the first and second trees, and so forth. 
+     *Predictions are based on the entire ensemble of trees together that makes the prediction. 
+     *
+     *Generally, when properly configured, boosted decision trees are the easiest methods with which to get top 
+     *performance on a wide variety of machine learning tasks. However, they are also one of the more memory-intensive 
+     *learners, and the current implementation holds everything in memory. Therefore, a boosted decision tree model 
+     *might not be able to process the very large datasets that some linear learners can handle.
+     */
+
     class GradientBoostingDesicionTree
     {
         MLContext mlContext;

@@ -11,6 +11,12 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace Assignment02.SupervisedClassifiers
 {
+    /*Support vector machines (SVMs) are an extremely popular and well-researched class of supervised learning models, 
+     * which can be used in linear and non-linear classification tasks. Recent research has focused on ways to optimize 
+     * these models to efficiently scale to larger training sets. 
+     * This model is a supervised learning method, and therefore requires a tagged dataset, which includes a 
+     * label column.
+     */
     class SupportVectorMachine
     {
         LinearSvmTrainer.Options options;

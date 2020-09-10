@@ -22,11 +22,14 @@ namespace Assignment02.SupervisedClassifiers
     {
         MLContext mlContext;
         Microsoft.ML.Data.EstimatorChain<Microsoft.ML.Data.MulticlassPredictionTransformer<Microsoft.ML.Trainers.NaiveBayesMulticlassModelParameters>> pipeline;
+        
+        //Creates an instance of the classifier, configured with the different options that this classifier requires.
         public NaiveBayes(MLContext mlContext) 
         {
             this.mlContext = mlContext;
         }
 
+        //This method loads the trainer according to the configurations defined previously.
         public void prepareModel()
         {
             // Define the trainer.
@@ -39,6 +42,7 @@ namespace Assignment02.SupervisedClassifiers
                 .NaiveBayes());
         }
 
+        //Executes the training and evaluation of this classifier on every fold partition defined in the code.
         public double trainAndEvaluateModel(int numFolds, IReadOnlyList<TrainTestData> splitDataView)
         {
             double vi = 0;

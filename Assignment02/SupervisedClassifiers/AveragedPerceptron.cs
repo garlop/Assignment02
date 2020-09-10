@@ -25,7 +25,8 @@ namespace Assignment02.SupervisedClassifiers
         AveragedPerceptronTrainer.Options options;
         MLContext mlContext;
         Microsoft.ML.Data.EstimatorChain<Microsoft.ML.Data.MulticlassPredictionTransformer<Microsoft.ML.Trainers.PairwiseCouplingModelParameters>> pipeline;
-        //AveragedPerceptronTrainer pipeline;
+        
+        //Creates an instance of the classifier, configured with the different options that this classifier requires.
         public AveragedPerceptron(bool averaged, float learningRate, bool decreaseLR, int numOfIterations, float l2Regularization, bool shuffle, MLContext mlContext)
         {
             this.options = new AveragedPerceptronTrainer.Options
@@ -44,6 +45,7 @@ namespace Assignment02.SupervisedClassifiers
             this.mlContext = mlContext;
         }
 
+        //This method loads the trainer according to the configurations defined previously.
         public void prepareModel()
         {
             // Define the trainer.
@@ -54,6 +56,7 @@ namespace Assignment02.SupervisedClassifiers
                 mlContext.BinaryClassification.Trainers.AveragedPerceptron(this.options)));
         }
 
+        //Executes the training and evaluation of this classifier on every fold partition defined in the code.
         public double trainAndEvaluateModel(int numFolds, IReadOnlyList<TrainTestData> splitDataView)
         {
             double vi = 0;

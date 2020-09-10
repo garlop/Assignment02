@@ -22,7 +22,8 @@ namespace Assignment02.SupervisedClassifiers
         LinearSvmTrainer.Options options;
         MLContext mlContext;
         Microsoft.ML.Data.EstimatorChain<Microsoft.ML.Data.MulticlassPredictionTransformer<Microsoft.ML.Trainers.PairwiseCouplingModelParameters>> pipeline;
-    
+
+        //Creates an instance of the classifier, configured with the different options that this classifier requires.
         public SupportVectorMachine(int batchSize, bool performProjection, int numberOfIterations, MLContext mlContext)
         {
             this.options = new LinearSvmTrainer.Options
@@ -34,6 +35,7 @@ namespace Assignment02.SupervisedClassifiers
             this.mlContext = mlContext;
         }
 
+        //This method loads the trainer according to the configurations defined previously.
         public void prepareModel()
         {
             this.pipeline =
@@ -43,6 +45,7 @@ namespace Assignment02.SupervisedClassifiers
                 mlContext.BinaryClassification.Trainers.LinearSvm(this.options)));
         }
 
+        //Executes the training and evaluation of this classifier on every fold partition defined in the code.
         public double trainAndEvaluateModel(int numFolds, IReadOnlyList<TrainTestData> splitDataView)
         {
             double vi = 0;

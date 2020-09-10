@@ -22,6 +22,8 @@ namespace Assignment02.SupervisedClassifiers
         MLContext mlContext;
         SdcaMaximumEntropyMulticlassTrainer.Options options;
         Microsoft.ML.Data.EstimatorChain<Microsoft.ML.Data.MulticlassPredictionTransformer<Microsoft.ML.Trainers.MaximumEntropyModelParameters>> pipeline;
+        
+        //Creates an instance of the classifier, configured with the different options that this classifier requires.
         public MaximumEntropy(float convergenceTolerance, int maximumNumberOfIterations, MLContext mlContext)
         {
             this.options = new SdcaMaximumEntropyMulticlassTrainer.Options
@@ -34,6 +36,7 @@ namespace Assignment02.SupervisedClassifiers
             this.mlContext = mlContext;
         }
 
+        //This method loads the trainer according to the configurations defined previously.
         public void prepareModel()
         {
             this.pipeline =
@@ -44,6 +47,7 @@ namespace Assignment02.SupervisedClassifiers
                 .SdcaMaximumEntropy(options));
         }
 
+        //Executes the training and evaluation of this classifier on every fold partition defined in the code.
         public double trainAndEvaluateModel(int numFolds, IReadOnlyList<TrainTestData> splitDataView)
         {
             double vi = 0;

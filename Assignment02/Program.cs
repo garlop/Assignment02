@@ -27,7 +27,8 @@ namespace Assignment02
         new AutoResetEvent(false)
         };
 
-        //Main program structure, this needs a array of strings in order to work properly
+        //Main program structure. It executes the VIC algorithm according to the parameters sent during execution
+        // this needs a array of strings in order to work properly
         static int Main(string[] args)
         {
             //Set initial variables which are going to be used later
@@ -177,6 +178,8 @@ namespace Assignment02
             return 0;
         }
 
+        //This method is used to save in the results.xml file the calculation of the quartiles for each classifier results when evaluating our clusters
+        //Information useful to generate statistics and analyze the results of our evaluation.
         public static void calculateQuartilesForClassifiers(double[][] aucsForClassifiers, int numberOfFiles)
         {
             for(int i = 0; i<7; i++)
@@ -207,6 +210,8 @@ namespace Assignment02
             }
         }
 
+        //This method is used to save in the results.xml file the auc evaluations of each classifier with each one of our clusters.
+        //It receives the threshold of the clusters separation, the vic score obtained by this clusters, and the values of each classifier
         public static void saveResultToXMLFile(string fileThreshold, double auc, double[] classifiersauc)
         {
             string filePath = Path.Combine(Environment.CurrentDirectory, "Data", "results.xml");
@@ -225,6 +230,8 @@ namespace Assignment02
             doc.Save(filePath);
         }
 
+        //This function loads the data clusters data from an specified file provided. This already includes the crossValidation split of the data for the following experiments.
+        //It generates a variable that provides the proper separations of training and testing for each fold when requested.
         public static IReadOnlyList<TrainTestData> LoadData(MLContext mlContext, string _dataPath)
         {
             IDataView dataView = mlContext.Data.LoadFromTextFile<MinutiaData>(_dataPath, hasHeader: true);

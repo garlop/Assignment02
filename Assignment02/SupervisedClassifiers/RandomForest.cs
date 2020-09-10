@@ -28,7 +28,8 @@ namespace Assignment02.SupervisedClassifiers
         FastForestBinaryTrainer.Options options;
         MLContext mlContext;
         Microsoft.ML.Data.EstimatorChain<Microsoft.ML.Data.MulticlassPredictionTransformer<Microsoft.ML.Trainers.PairwiseCouplingModelParameters>> pipeline;
-        //Microsoft.ML.Trainers.FastTree.FastForestBinaryTrainer pipeline;
+
+        //Creates an instance of the classifier, configured with the different options that this classifier requires.
         public RandomForest(double featureFraction, double featureFirstUsePenalty, int numberOfTrees, MLContext mlContext)
         {
             // Define trainer options.
@@ -44,6 +45,7 @@ namespace Assignment02.SupervisedClassifiers
             this.mlContext = mlContext;
         }
 
+        //This method loads the trainer according to the configurations defined previously.
         public void prepareModel()
         {
             // Define the trainer.
@@ -60,6 +62,7 @@ namespace Assignment02.SupervisedClassifiers
             //this.pipeline = this.mlContext.BinaryClassification.Trainers.FastForest(this.options);
         }
 
+        //Executes the training and evaluation of this classifier on every fold partition defined in the code.
         public double trainAndEvaluateModel(int numFolds, IReadOnlyList<TrainTestData> splitDataView)
         {
             double vi = 0;

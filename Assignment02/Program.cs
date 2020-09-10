@@ -33,21 +33,22 @@ namespace Assignment02
             //Set initial variables which are going to be used later
             string classifiers = "";
             string threading = "";
+            string data = "";
 
-            //Evaluate the string array in order to determine if the array has 2 elements or not, if not, ask for a proper
+            //Evaluate the string array in order to determine if the array has 3 elements or not, if not, ask for a proper
             //array
-            if (args.Length != 2){
+            if (args.Length != 3){
                 Console.WriteLine("Please provide the proper number of execution parameters");
                 return 1;
             }
-            /* If the array args has 2 elements, define the first element as the classifiers types
+            /* If the array args has 3 elements, define the first element as the classifiers types
              * and evaluate if the said classifier includes the letters "rpbmtsl" in their name, if not, consider it 
              * as an invalid classifier selection, also, check the second element of the args array to define 
              * if its a valid threading selection or not
              * The letter meaning are as follow:
-             * For the classifiers                                  For the threading
-             * r -> Random Forest                                   s -> Single Threading
-             * b -> Naive Bayes                                     m -> Multiple Threading
+             * For the classifiers                                  For the threading           For the data
+             * r -> Random Forest                                   s -> Single Threading       b -> Two Clusters Data
+             * b -> Naive Bayes                                     m -> Multiple Threading     m -> Three Clusters Data
              * p -> Averaged Perception
              * m -> Maximum Entropy
              * t -> Gradient Boosting Decision Tree 
@@ -76,6 +77,15 @@ namespace Assignment02
                 {
                     threading = args[1];
                 }
+                if((args[2] != "b") && (args[2] != "m"))
+                {
+                    Console.WriteLine("Invalid Data parameter");
+                    return 1;
+                }
+                else
+                {
+                    data = args[2];
+                }
             }
             // Create a new context for ML.NET operations as the source of randomness. Setting the seed to a fixed number to make outputs deterministic.
             var mlContext = new MLContext(seed: 0);
@@ -101,17 +111,40 @@ namespace Assignment02
             for (int i = 0; i < 7; i++)
                 aucsForClassifier[i] = new double[numberOfFiles];
 
-            //Thresholds for binary classes
-            string[] thresholds = { "-0.24", "-0.23", "-0.22", "-0.21", "-0.2", "-0.19", "-0.18", "-0.17", "-0.16", "-0.15",
-                "-0.14", "-0.13", "-0.12", "-0.11", "-0.1", "-0.09", "-0.08", "-0.07","-0.06", "-0.05", "-0.04", "-0.03", "-0.02",
-                "-0.01", "0.0", "0.01", "0.02", "0.03", "0.04", "0.05", "0.06", "0.07", "0.08", "0.09", "0.1", "0.11", "0.12", "0.13", "0.14",
-                "0.15", "0.16", "0.17", "0.18", "0.19", "0.2", "0.21", "0.22", "0.23", "0.24", "0.25"};
+            string[] thresholds;
+
+            if (data == "b")
+            {
+                string[] temp = { "-0.24", "-0.23", "-0.22", "-0.21", "-0.2", "-0.19", "-0.18", "-0.17", "-0.16", "-0.15",
+                    "-0.14", "-0.13", "-0.12", "-0.11", "-0.1", "-0.09", "-0.08", "-0.07","-0.06", "-0.05", "-0.04", "-0.03", "-0.02",
+                    "-0.01", "0.0", "0.01", "0.02", "0.03", "0.04", "0.05", "0.06", "0.07", "0.08", "0.09", "0.1", "0.11", "0.12", "0.13", "0.14",
+                    "0.15", "0.16", "0.17", "0.18", "0.19", "0.2", "0.21", "0.22", "0.23", "0.24", "0.25"};
+                thresholds = temp;
+            }
+            else
+            {
+                string[] temp = { "0.0_-0.25", "0.01_-0.25", "0.02_-0.25", "0.03_-0.25", "0.04_-0.25", "0.05_-0.25", "0.06_-0.25",
+                        "0.07_-0.25", "0.08_-0.25", "0.09_-0.25", "0.1_-0.25", "0.11_-0.25", "0.12_-0.25", "0.13_-0.25", "0.14_-0.25",
+                        "0.15_-0.25", "0.16_-0.25", "0.17_-0.25", "0.18_-0.25", "0.19_-0.25", "0.2_-0.25", "0.21_-0.25", "0.22_-0.25",
+                        "0.23_-0.25", "0.24_-0.25", "0.25_-0.25", "0.25_-0.24", "0.25_-0.23", "0.25_-0.22", "0.25_-0.21", "0.25_-0.2",
+                        "0.25_-0.19", "0.25_-0.18", "0.25_-0.17", "0.25_-0.16", "0.25_-0.15", "0.25_-0.14", "0.25_-0.13", "0.25_-0.12",
+                        "0.25_-0.11", "0.25_-0.1", "0.25_-0.09", "0.25_-0.08", "0.25_-0.07", "0.25_-0.06", "0.25_-0.05", "0.25_-0.04",
+                        "0.25_-0.03", "0.25_-0.02", "0.25_-0.01"};
+                thresholds = temp;
+            }
 
             for (int i = 0; i< numberOfFiles; i++)
             {
                 //Set the variable datapath as the path where the .csv is saved to use in futur in the program
-                //This line for binary classes
-                string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data\\BinaryData", "ex_database_threshold" + thresholds[i]+ ".txt");
+                string _dataPath;
+                if (data == "b")
+                {
+                    _dataPath = Path.Combine(Environment.CurrentDirectory, "Data\\BinaryData", "ex_database_threshold" + thresholds[i] + ".txt");
+                }
+                else
+                {
+                    _dataPath = Path.Combine(Environment.CurrentDirectory, "Data\\MultiClassData", "ex_database_threshold_" + thresholds[i] + ".txt");
+                }
 
                 IReadOnlyList<TrainTestData> splitDataView = LoadData(mlContext, _dataPath);
 
